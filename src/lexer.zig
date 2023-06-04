@@ -28,6 +28,12 @@ pub const Lexer = struct {
             '+' => Token.PLUS,
             '{' => Token.LBRACE,
             '}' => Token.RBRACE,
+            '!' => Token.BANG,
+            '-' => Token.MINUS,
+            '/' => Token.SLASH,
+            '*' => Token.ASTERISK,
+            '<' => Token.LT,
+            '>' => Token.GT,
             0 => Token.EOF,
             'a'...'z', 'A'...'Z', '_' => {
                 const ident = self.readIdentifier();
@@ -174,6 +180,84 @@ test "Multi-line Input" {
     // inline for (std.meta.fields(Token)) |f| {
     //     std.log.warn("{s}", .{f.name});
     // }
+
+    for (expected_tokens) |expected_token| {
+        const tok = lex.next_token();
+
+        // std.log.warn("token: {}, position: {}, char: {u}", .{ tok, lex.position, lex.ch });
+
+        try expectEqualDeep(expected_token, tok);
+    }
+}
+
+test "Extending the lexer" {
+    const input =
+        \\    let five = 5;
+        \\    
+        \\    let ten = 10;
+        \\    
+        \\    let add = fn(x, y) {
+        \\        x + y;
+        \\    };
+        \\
+        \\    let result = add(five, ten);
+        \\    !-/*5;
+        \\    5 < 10 > 5;
+    ;
+
+    var lex = Lexer.init(input);
+
+    const expected_tokens = [_]Token{
+        .LET,
+        .{ .IDENT = "five" },
+        .ASSIGN,
+        .{ .INT = "5" },
+        .SEMICOLON,
+        .LET,
+        .{ .IDENT = "ten" },
+        .ASSIGN,
+        .{ .INT = "10" },
+        .SEMICOLON,
+        .LET,
+        .{ .IDENT = "add" },
+        .ASSIGN,
+        .FUNCTION,
+        .LPAREN,
+        .{ .IDENT = "x" },
+        .COMMA,
+        .{ .IDENT = "y" },
+        .RPAREN,
+        .LBRACE,
+        .{ .IDENT = "x" },
+        .PLUS,
+        .{ .IDENT = "y" },
+        .SEMICOLON,
+        .RBRACE,
+        .SEMICOLON,
+        .LET,
+        .{ .IDENT = "result" },
+        .ASSIGN,
+        .{ .IDENT = "add" },
+        .LPAREN,
+        .{ .IDENT = "five" },
+        .COMMA,
+        .{ .IDENT = "ten" },
+        .RPAREN,
+        .SEMICOLON,
+        .BANG,
+        .MINUS,
+        .SLASH,
+        .ASTERISK,
+        .{ .INT = "5" },
+        .SEMICOLON,
+        .{ .INT = "5" },
+        .LT,
+        .{ .INT = "10" },
+        .GT,
+        .{ .INT = "5" },
+        .SEMICOLON,
+        .EOF,
+    };
 
     for (expected_tokens) |expected_token| {
         const tok = lex.next_token();

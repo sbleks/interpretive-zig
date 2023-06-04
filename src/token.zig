@@ -15,6 +15,12 @@ pub const Token = union(enum) {
     RBRACE,
     FUNCTION,
     LET,
+    BANG,
+    MINUS,
+    SLASH,
+    ASTERISK,
+    LT,
+    GT,
 
     pub fn lookupIdent(ident: []const u8) Token {
         if (std.mem.eql(u8, ident, "let")) {
