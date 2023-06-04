@@ -26,6 +26,8 @@ pub const Token = union(enum) {
     IF,
     ELSE,
     RETURN,
+    EQUAL,
+    NOT_EQUAL,
 
     pub fn lookupIdent(ident: []const u8) Token {
         if (std.mem.eql(u8, ident, "let")) {

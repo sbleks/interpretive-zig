@@ -20,7 +20,14 @@ pub const Lexer = struct {
         self.skipWhitespace();
 
         var tok: Token = switch (self.ch) {
-            '=' => Token.ASSIGN,
+            '=' => blk: {
+                if (self.peekChar() == '=') {
+                    self.readChar();
+                    break :blk Token.EQUAL;
+                } else {
+                    break :blk Token.ASSIGN;
+                }
+            },
             ';' => Token.SEMICOLON,
             '(' => Token.LPAREN,
             ')' => Token.RPAREN,
@@ -28,7 +35,14 @@ pub const Lexer = struct {
             '+' => Token.PLUS,
             '{' => Token.LBRACE,
             '}' => Token.RBRACE,
-            '!' => Token.BANG,
+            '!' => blk: {
+                if (self.peekChar() == '=') {
+                    self.readChar();
+                    break :blk Token.NOT_EQUAL;
+                } else {
+                    break :blk Token.BANG;
+                }
+            },
             '-' => Token.MINUS,
             '/' => Token.SLASH,
             '*' => Token.ASTERISK,
@@ -54,6 +68,14 @@ pub const Lexer = struct {
     fn skipWhitespace(self: *Self) void {
         while (self.ch == ' ' or self.ch == '\t' or self.ch == '\n' or self.ch == '\r') {
             self.readChar();
+        }
+    }
+
+    fn peekChar(self: *Self) u8 {
+        if (self.read_position >= self.input.len) {
+            return 0;
+        } else {
+            return self.input[self.read_position];
         }
     }
 
@@ -209,6 +231,9 @@ test "Extending the lexer" {
         \\    } else {
         \\        return false;
         \\    }
+        \\    
+        \\    10 == 10;
+        \\    10 != 9;
     ;
 
     var lex = Lexer.init(input);
@@ -281,14 +306,14 @@ test "Extending the lexer" {
         .SEMICOLON,
         .RBRACE,
 
-        // .{ .INT = "10" },
-        // .EQUAL,
-        // .{ .INT = "10" },
-        // .SEMICOLON,
-        // .{ .INT = "10" },
-        // .NOT_EQUAL,
-        // .{ .INT = "9" },
-        // .SEMICOLON,
+        .{ .INT = "10" },
+        .EQUAL,
+        .{ .INT = "10" },
+        .SEMICOLON,
+        .{ .INT = "10" },
+        .NOT_EQUAL,
+        .{ .INT = "9" },
+        .SEMICOLON,
 
         .EOF,
     };
