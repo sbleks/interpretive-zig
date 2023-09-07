@@ -50,4 +50,12 @@ pub const Token = union(enum) {
 
         return .{ .IDENT = ident };
     }
+
+    pub fn print(self: Token, writer: anytype) !void {
+        switch (self) {
+            .IDENT => try writer.print("{}{{ .{s} = \"{s}\" }})\n", .{ @TypeOf(self), @tagName(self), self.IDENT }),
+            .INT => try writer.print("{}{{ .{s} = \"{s}\" }})\n", .{ @TypeOf(self), @tagName(self), self.INT }),
+            inline else => try writer.print("{}\n", .{self}),
+        }
+    }
 };

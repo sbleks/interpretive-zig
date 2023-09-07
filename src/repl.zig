@@ -18,7 +18,8 @@ pub fn start(in: std.fs.File, out: std.fs.File) !void {
             if (tok == Token.EOF) {
                 break;
             }
-            try stdout.print("{}\n", .{tok});
+            // try stdout.print("{}\n", .{tok});
+            try tok.print(stdout);
         }
     }
 }
