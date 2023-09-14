@@ -11,6 +11,11 @@ pub fn start(in: std.fs.File, out: std.fs.File) !void {
         try stdout.print("{s}", .{PROMPT});
         var buf: [1000]u8 = undefined;
         const user_input = try reader.readUntilDelimiterOrEof(buf[0..], '\n') orelse "";
+
+        if (std.mem.eql(u8, user_input, "exit")) {
+            return;
+        }
+
         var lex = Lexer.init(user_input);
 
         while (true) {
